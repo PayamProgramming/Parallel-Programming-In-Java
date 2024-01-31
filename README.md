@@ -1,0 +1,1 @@
+Parallel Programming In Java. Should only use for education purposes and comparison with your own solutions. Some of these may not be the most effiecent solution. Feel free to ask questions or post feedback via Issues tab.
