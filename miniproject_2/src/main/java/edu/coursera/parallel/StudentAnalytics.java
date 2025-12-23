@@ -74,12 +74,7 @@ public final class StudentAnalytics {
         Map<String, Integer> nameCounts = new HashMap<>();
 
         for (Student s : inactiveStudents) {
-            if (nameCounts.containsKey(s.getFirstName())) {
-                nameCounts.put(s.getFirstName(),
-                        nameCounts.get(s.getFirstName()) + 1);
-            } else {
-                nameCounts.put(s.getFirstName(), 1);
-            }
+            nameCounts.merge(s.getFirstName(), 1, Integer::sum);
         }
 
         String mostCommon = null;
@@ -111,9 +106,9 @@ public final class StudentAnalytics {
                 .parallel()
                 .filter(s -> !s.checkIsCurrent())
                 .map(Student::getFirstName)
-                .collect(Collectors.groupingBy(Function.identity(),Collectors.counting()))
+                .collect(Collectors.groupingByConcurrent(Function.identity(),Collectors.counting()))
                 .entrySet()
-                .stream()
+                .parallelStream()
                 .max(Map.Entry.comparingByValue())
                 .get()
                 .getKey();
