@@ -50,14 +50,11 @@ public final class ReciprocalArraySum {
      * given there are a certain number of chunks.
      *
      * @param chunk The chunk to compute the start of
-     * @param nChunks The number of chunks created
-     * @param nElements The number of elements to chunk across
+     * @param chunkSize The size of each chunk
      * @return The inclusive index that this chunk starts at in the set of
      *         nElements
      */
-    private static int getChunkStartInclusive(final int chunk,
-                                              final int nChunks, final int nElements) {
-        final int chunkSize = getChunkSize(nChunks, nElements);
+    private static int getChunkStartInclusive(final int chunk, final int chunkSize) {
         return chunk * chunkSize;
     }
 
@@ -66,13 +63,12 @@ public final class ReciprocalArraySum {
      * given there are a certain number of chunks.
      *
      * @param chunk The chunk to compute the end of
-     * @param nChunks The number of chunks created
+     * @param chunkSize The size of each chunk
      * @param nElements The number of elements to chunk across
      * @return The exclusive end index for this chunk
      */
-    private static int getChunkEndExclusive(final int chunk, final int nChunks,
+    private static int getChunkEndExclusive(final int chunk, final int chunkSize,
                                             final int nElements) {
-        final int chunkSize = getChunkSize(nChunks, nElements);
         final int end = (chunk + 1) * chunkSize;
         if (end > nElements) {
             return nElements;
@@ -190,14 +186,15 @@ public final class ReciprocalArraySum {
 
         double sum = 0;
         ArrayList<ReciprocalArraySumTask> reciprocalArraySumTaskList = new ArrayList<>();
+        final int chunkSize = getChunkSize(numTasks, input.length);
         for(int i=0;i<numTasks;i++){
-            int start = getChunkStartInclusive(i,numTasks,input.length);
-            int end = getChunkEndExclusive(i,numTasks,input.length);
+            int start = getChunkStartInclusive(i, chunkSize);
+            int end = getChunkEndExclusive(i, chunkSize, input.length);
             reciprocalArraySumTaskList.add(new ReciprocalArraySumTask(start,end,input));
         }
         ForkJoinTask.invokeAll(reciprocalArraySumTaskList);
-        for(ReciprocalArraySumTask roast : reciprocalArraySumTaskList){
-            sum += roast.getValue();
+        for(ReciprocalArraySumTask task : reciprocalArraySumTaskList){
+            sum += task.getValue();
         }
         return sum;
     }
